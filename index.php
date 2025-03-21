@@ -1,48 +1,49 @@
-<html>
+<!DOCTYPE html>
+<html lang="pt-BR">
 
 <head>
-<title>Exemplo PHP</title>
+    <meta charset="UTF-8">
+    <title>Exemplo PHP</title>
 </head>
+
 <body>
+    <?php
+    ini_set("display_errors", 1);
+    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+    
+    // Definição dos parâmetros de conexão
+    $servername = "54.234.153.24";
+    $username = "root";
+    $password = "Senha123";
+    $database = "meubanco";
 
-<?php
-ini_set("display_errors", 1);
-header('Content-Type: text/html; charset=iso-8859-1');
+    // Criar conexão usando MySQLi (Orientado a Objetos)
+    $link = new mysqli($servername, $username, $password, $database);
 
+    // Definir o charset como UTF-8 para evitar problemas de caracteres
+    $link->set_charset("utf8");
 
+    echo 'Versão Atual do PHP: ' . phpversion() . '<br>';
 
-echo 'Versao Atual do PHP: ' . phpversion() . '<br>';
+    // Gerar valores aleatórios para inserção no banco
+    $valor_rand1 = rand(1, 999);
+    $valor_rand2 = strtoupper(substr(bin2hex(random_bytes(4)), 1));
+    $host_name = gethostname();
 
-$servername = "54.234.153.24";
-$username = "root";
-$password = "Senha123";
-$database = "meubanco";
+    // Preparar e executar a consulta SQL com segurança
+    $stmt = $link->prepare("INSERT INTO alunos (aluno_id, nome, sobrenome, endereco, cidade, host) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isssss", $valor_rand1, $valor_rand2, $valor_rand2, $valor_rand2, $valor_rand2, $host_name);
 
-// Criar conexão
+    if ($stmt->execute()) {
+        echo "Novo registro criado com sucesso!";
+    } else {
+        echo "Erro: " . $stmt->error;
+    }
 
-
-$link = new mysqli($servername, $username, $password, $database);
-
-/* check connection */
-if (mysqli_connect_errno()) {
-    printf("Connect failed: %s\n", mysqli_connect_error());
-    exit();
-}
-
-$valor_rand1 =  rand(1, 999);
-$valor_rand2 = strtoupper(substr(bin2hex(random_bytes(4)), 1));
-$host_name = gethostname();
-
-
-$query = "INSERT INTO dados (AlunoID, Nome, Sobrenome, Endereco, Cidade, Host) VALUES ('$valor_rand1' , '$valor_rand2', '$valor_rand2', '$valor_rand2', '$valor_rand2','$host_name')";
-
-
-if ($link->query($query) === TRUE) {
-  echo "New record created successfully";
-} else {
-  echo "Error: " . $link->error;
-}
-
-?>
+    // Fechar a conexão
+    $stmt->close();
+    $link->close();
+    ?>
 </body>
+
 </html>
